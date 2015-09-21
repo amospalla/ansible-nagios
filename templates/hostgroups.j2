@@ -1,0 +1,34 @@
+# File managed by Ansible
+
+define hostgroup {
+	hostgroup_name all
+	alias          Todos los equipos
+	members        *
+}
+{%  for group in groups %}
+{%-    if not ( nagios.hostgroups is defined
+                and nagios.hostgroups[group] is defined
+                and nagios.hostgroups[group]['enable']|default(true) == false )
+       and group not in ['all','ungrouped'] %}
+
+define hostgroup {
+	hostgroup_name {{ group }}
+	alias          {%  if nagios.hostgroups[group] is defined
+	                   and nagios.hostgroups[group]['alias'] is defined %}
+	                      {{- nagios.hostgroups[group]['alias'] }}
+	               {%  else %}
+	               {{-    group }}
+	               {%- endif %}
+
+	members        {%  for host in groups[group] %}
+	               {%-    if hostvars[host]['nagios_enable']|default(True) == True %}
+	               {{-       host }}
+	               {%-       if not loop.last %}
+	               {{-          ', ' }}
+	               {%-       endif %}
+	               {%-    endif %}
+	               {%- endfor %}
+
+}
+{%     endif %}
+{%  endfor %}

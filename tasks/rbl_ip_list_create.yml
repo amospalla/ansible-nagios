@@ -1,0 +1,22 @@
+---
+- name: Create rbl list | copy script
+  copy:
+    src: rbl_generate.sh
+    dest: /usr/local/bin
+    mode: 0755
+
+- name: Create rbl list | ensure vars file does not exist
+  file:
+    path: "{{ rbl_ip_list_path }}"
+    state: absent
+  changed_when: false
+
+- name: Create rbl list | execute script
+  command: /usr/local/bin/rbl_generate.sh "{{ rbl_ip_list_path }}" "{{ item.0.normal_check_interval }}" "{{ item.1 }}"
+  with_subelements:
+    - nagios_rbl_ip_list
+    - address
+  changed_when: false
+
+- name: Create rbl list | include generated vars
+  include_vars: "{{ rbl_ip_list_path }}"

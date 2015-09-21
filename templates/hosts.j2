@@ -1,0 +1,17 @@
+# File managed by Ansible
+{%  for host in groups['all'] %}
+{%-    if hostvars[host]['nagios_enable']|default(true) == true %}
+
+define host{
+	use                  generic-host
+	host_name            {{ host }}
+	alias                {{ hostvars[host]['host_alias'] | default(host) }}
+	address              {{ hostvars[host]['ansible_ssh_host'] | default(host) }}
+	_PINGLATENCYWARNING  {{ hostvars[host].nagios_ping.latency_warning }}
+	_PINGLATENCYCRITICAL {{ hostvars[host].nagios_ping.latency_critical }}
+	_PINGLOSSWARNING     {{ hostvars[host].nagios_ping.loss_warning }}
+	_PINGLOSSCRITICAL    {{ hostvars[host].nagios_ping.loss_critical }}
+	_PINGNUMBEROFPACKETS {{ hostvars[host].nagios_ping.number_of_packets }}
+}
+{%     endif %}
+{%  endfor %}

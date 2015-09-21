@@ -1,0 +1,351 @@
+# File managed by Ansible
+
+{#############################################################################}
+{###  macro get_units()  #####################################################}
+{#############################################################################}
+{%- set global_units = {} -%}
+
+{%  macro get_units(string) %}
+{%  if string | string | lower | search('percent') %}
+{%      set _ = global_units.update({'units':'percent'}) %}
+{%  elif string | string | lower | search('k') %}
+{%      set _ = global_units.update({'units':'kb', 'multiply': 1024}) %}
+{%  elif string | string | lower | search('m') %}
+{%      set _ = global_units.update({'units':'mb', 'multiply': 1024*1024}) %}
+{%  elif string | string | lower | search('g') %}
+{%      set _ = global_units.update({'units':'gb', 'multiply': 1024*1024*1024}) %}
+{%  elif string | string | lower | search('t') %}
+{%      set _ = global_units.update({'units':'tb', 'multiply': 1024*1024*1024*1024}) %}
+{%  endif %}
+{%  endmacro %}
+
+{#############################################################################}
+{###  memory  ################################################################}
+{#############################################################################}
+
+{%- macro memory_function() %}
+{{  get_units(nrpe_memory.units) }}
+{%- if   global_units.units == 'kb'      %}{% set units = 'KiB' %}
+{%  elif global_units.units == 'mb'      %}{% set units = 'MiB' %}
+{%  elif global_units.units == 'gb'      %}{% set units = 'GiB' %}
+{%  elif global_units.units == 'tb'      %}{% set units = 'TiB' %}
+{%  elif global_units.units == 'percent' %}{% set units = 'percent' %}
+{%  endif %}
+        {{- 'command[nrpe_memory' }}{{ ']='}}
+        {{- '/usr/local/nagios/libexec/check_unix_mem_usage.pl' }}
+{%- if units == 'percent' %}
+        {{- ' --perthres' }}
+{%- else %}
+        {{- ' --units=' }}{{ units }}
+{%- endif %}
+        {{- ' --warning=' }}
+        {{- nrpe_memory.warning_memory_total_used|default('') }},
+        {{- nrpe_memory.warning_memory_applications_used|default('') }},
+        {{- nrpe_memory.warning_memory_cache_used|default('') }},
+        {{- nrpe_memory.warning_swap_used|default('') }}
+        {{- ' --critical=' }}
+        {{- nrpe_memory.critical_memory_total_used|default('') }},
+        {{- nrpe_memory.critical_memory_applications_used|default('') }},
+        {{- nrpe_memory.critical_memory_cache_used|default('') }},
+        {{- nrpe_memory.critical_swap_used|default('') }}
+{%- endmacro -%}
+
+{#############################################################################}
+{###  tcp  ###################################################################}
+{#############################################################################}
+
+{%- macro tcp_function() %}
+{%  for item,value in nrpe_tcp.items() %}
+        {{- 'command[nrpe_tcp' }}{{ loop.index0 }}{{ ']=' }}
+        {{- plugins_path }}{{ '/check_tcp' }}
+        {{- ' --hostname=' }}{{ value.hostname }}
+        {{- ' --port=' }}{{ value.port }}
+{%-     if value.ssl|default(false) == true %}
+        {{- ' --ssl' }}
+{%-     endif %}
+{%      if value.timeout|default(5) is defined %}
+        {{- ' --timeout=' }}{{ value.timeout|default(5) }}
+{%-     endif %}
+{%  endfor %}
+{%  endmacro -%}
+
+{#############################################################################}
+{###  smtp_auth  #############################################################}
+{#############################################################################}
+
+{%- macro smtp_auth_function() %}
+{%  for item,value in nrpe_smtp_auth.items() %}
+        {{- 'command[nrpe_smtp_auth' }}{{ loop.index0 }}{{ ']='}}
+        {{- plugins_path }}{{ '/check_smtp' }}
+        {{- ' --hostname=' }}{{ value.hostname }}
+        {{- ' --port=' }}{{ value.port|default('25') }}
+{%-     if value.starttls|default(true) == true %}
+        {{- ' --starttls' }}
+        {{- ' --authtype=LOGIN' }}
+        {{- ' --authuser=' }}{{ value.username }}
+        {{- ' --authpass=' }}{{ value.password }}
+{%-     endif %}
+{%  endfor %}
+{%  endmacro -%}
+
+{#############################################################################}
+{###  smtp_cert_validity_time  ###############################################}
+{#############################################################################}
+
+{%- macro smtp_cert_validity_time_function() %}
+{%  for item,value in nrpe_smtp_cert_validity_time.items() %}
+        {{- 'command[nrpe_smtp_cert_validity_time' }}{{ loop.index0 }}{{ ']='}}
+        {{- plugins_path }}{{ '/check_smtp' }}
+        {{- ' --hostname=' }}{{ value.hostname }}
+        {{- ' --port=' }}{{ value.port|default('25') }}
+        {{- ' --starttls' }}
+        {{- ' --certificate=' }}{{ value.time }}
+{%- endfor %}
+{%  endmacro -%}
+
+{#############################################################################}
+{###  vhost_cert_validity_time  ##############################################}
+{#############################################################################}
+
+{%- macro vhost_cert_validity_time_function() %}
+{%  for item,value in nrpe_vhost_cert_validity_time.items() %}
+        {{- 'command[nrpe_vhost_cert_validity_time' }}{{ loop.index0 }}{{ ']='}}
+        {{- plugins_path }}{{ '/check_http' }}
+        {{- ' --hostname=' }}{{ value.vhost }}
+        {{- ' --IP-address=' }}{{ value.hostname }}
+        {{- ' --port=' }}{{ value.port|default('443') }}
+        {{- ' --ssl' }}
+{%-     if value.sni|default(true) == true %}
+        {{- ' --sni' }}
+        {{- ' --certificate=' }}{{ value.time }}
+{%-     endif %}
+{%  endfor %}
+{%  endmacro -%}
+
+{#############################################################################}
+{###  url_string  ############################################################}
+{#############################################################################}
+
+{%- macro url_string_function() %}
+{%  for item,value in nrpe_url_string.items() %}
+        {{- 'command[nrpe_url_string' }}{{ loop.index0 }}{{ ']='}}
+        {{- plugins_path }}{{ '/check_http' }}
+        {{- ' --hostname=' }}{{ value.vhost }}
+        {{- ' --IP-address=' }}{{ value.hostname }}
+        {{- ' --port=' }}{{ value.port|default(80) }}
+        {{- ' --string="' }}{{ value.string }}{{ '"' }}
+{%-     if value.ssl|default(false) == true %}
+        {{- ' --ssl' }}
+{%-     endif %}
+{%-     if value.sni|default(false) == true %}
+        {{- ' --sni' }}
+{%-     endif %}
+{%  endfor %}
+{%  endmacro -%}
+
+{#############################################################################}
+{###  ntp_peer  ##############################################################}
+{#############################################################################}
+
+{%- macro ntp_peer_function() %}
+    {{- 'command[nrpe_ntp_peer]='}}
+    {{- plugins_path }}{{ '/check_ntp_peer' }}
+    {{- ' --hostname=127.0.0.1' }}
+    {{- ' --warning=' }}{{ nrpe_ntp_peer.warning }}
+    {{- ' --critical=' }}{{ nrpe_ntp_peer.critical }}
+{%- endmacro -%}
+
+{#############################################################################}
+{###  ntp_time  ##############################################################}
+{#############################################################################}
+
+{%- macro nrpe_ntp_time_function() %}
+{%  for item in nrpe_ntp_time %}
+        {{- 'command[nrpe_ntp_time]='}}
+        {{- plugins_path }}{{ '/check_ntp_time' }}
+        {{- ' --hostname=' }}{{ nrpe_ntp_time.ntp_server }}
+        {{- ' --warning=' }}{{ nrpe_ntp_time.warning }}
+        {{- ' --critical=' }}{{ nrpe_ntp_time.critical }}
+{%  endfor %}
+{%- endmacro -%}
+
+{#############################################################################}
+{###  load  ##################################################################}
+{#############################################################################}
+
+{%- macro nrpe_load_function() %}
+    {{- 'command[nrpe_load]=' }}
+    {{- plugins_path }}{{ '/check_load' }}
+    {{- ' --warning=' }}{{ nrpe_load.warning }}
+    {{- ' --critical=' }}{{ nrpe_load.critical }}
+{%- if nrpe_load.load_1_means_all_cpus_are_used|default(false) == true %}
+        {{- ' --percpu' }}
+{%- endif %}
+{%  endmacro -%}
+
+{#############################################################################}
+{###  dns_record  ############################################################}
+{#############################################################################}
+
+{%- macro nrpe_dns_record_function() %}
+{%  for item,value in nrpe_dns_record.items() %}
+        {{- 'command[nrpe_dns_record' }}{{ loop.index0 }}{{ ']='}}
+        {{- plugins_path }}{{ '/check_dns' }}
+        {{- ' --hostname=' }}{{ value.query }}
+        {{- ' --server=' }}{{ value.hostname }}
+        {{- ' --expected-address=' }}{{ value.answer }}
+{%-     if value.authoritative|default(false) == true %}
+        {{- ' --expect-authority' }}
+{%-     endif %}
+{%  endfor %}
+{%  endmacro -%}
+
+{#############################################################################}
+{###  disk  ##################################################################}
+{#############################################################################}
+
+{%- macro check_disk_path(dict) %}
+{%  if dict.warning %}
+{{       get_units(dict.units) }}
+{%-      if global_units.units == 'kb' %}
+{%           set units = 'kB' %}
+{%       elif global_units.units == 'mb' %}
+{%           set units = 'MB' %}
+{%       elif global_units.units == 'gb' %}
+{%           set units = 'GB' %}
+{%       elif global_units.units == 'tb' %}
+{%           set units = 'TB' %}
+{%       elif global_units.units == 'percent' %}
+{%           set units = '%' %}
+{%       endif %}
+{%       if units in ['kB','MB','GB','TB'] %}
+            {{- ' --warning=' }}{{ dict.warning }}
+            {{- ' --critical=' }}{{ dict.critical }}
+            {{- ' --units=' }}{{ units -}}
+{%      elif units == '%' %}
+            {{- ' --warning=' }}{{ dict.warning }}%
+            {{- ' --critical=' }}{{ dict.critical }}%
+{%-     endif %}
+{%  endif %}
+{%  if dict.inode_warning %}
+{{      get_units(dict.inode_units) }}
+{%-     if global_units.units in ['kb','mb','gb','tb'] %}
+{%          if not btrfs_inodes %}
+                {{- ' --iwarning=' }}{{ dict.inode_warning * global_units.multiply }}
+                {{- ' --icritical=' }}{{ dict.inode_critical * global_units.multiply }}
+{%          endif %}
+{%-     elif global_units.units == 'percent' %}
+            {{- ' --iwarning=' }}{{ dict.inode_warning }}%
+            {{- ' --icritical=' }}{{ dict.inode_critical }}%
+{%-     endif %}
+{%  endif %}
+{%  endmacro -%}
+
+{%- macro nrpe_disk_function() %}
+{%  for item,dict in nrpe_disk.items() -%}
+        command[nrpe_disk {{- loop.index0 -}} ]=
+        {{- plugins_path }}/check_disk
+{{-     check_disk_path(dict) -}}
+        {{- ' --errors-only' }}
+{%-     if dict.path == 'all' %}
+            {{- ' --all' -}}
+{%          if dict.only_local|default(false) == true %}
+                {{- ' --local' }}
+{%-         endif %}
+{%          for item,dict in nrpe_disk.items() %}
+{%              if not dict.path == 'all' %}
+                    {{- ' --exclude_device=' }}{{ dict.path -}}
+{%              endif %}
+{%          endfor %}
+{%          if dict.exclude_type is defined %}
+{%              for type in dict.exclude_type %}
+                   {{- ' --exclude-type=' }}{{ type -}}
+{%              endfor %}
+{%          endif %}
+{%          if dict.exclude_regex is defined %}
+{%              for regex in dict.exclude_regex %}
+                    {{- ' --ignore-eregi-path="' }}{{ regex }}{{ '"' }}
+{%             endfor %}
+{%          endif %}
+{%      else %}
+            {{- ' --exact-match' }}{{ ' --path=' }}{{ dict.path }}
+{%-     endif %}
+{%  endfor %}
+{%  endmacro -%}
+
+{#############################################################################}
+{###  swap  ##################################################################}
+{#############################################################################}
+
+{%- macro nrpe_swap_function() %}
+{{      get_units(nrpe_swap.units) -}}
+        {{- 'command[nrpe_swap' }}{{ ']='}}
+        {{- plugins_path }}{{ '/check_swap' }}
+{%- if global_units.units == 'percent' %}
+        {{- ' --warning=' }}{{ nrpe_swap.warning_free }}%
+        {{- ' --critical=' }}{{ nrpe_swap.critical_free }}%
+{%- else %}
+        {{- ' --warning=' }}{{ nrpe_swap.warning_free * global_units.multiply }}
+        {{- ' --critical=' }}{{ nrpe_swap.critical_free * global_units.multiply }}
+{%  endif %}
+{%  endmacro -%}
+
+{#############################################################################}
+{###  code  ##################################################################}
+{#############################################################################}
+
+{%- if ansible_os_family == "Debian" %}
+{%     set plugins_path="/usr/lib/nagios/plugins" %}
+{%  elif ansible_os_family == "RedHat" and ansible_userspace_bits == "32" %}
+{%     set plugins_path="/usr/lib/nagios/plugins" %}
+{%  elif ansible_os_family == "RedHat" and ansible_userspace_bits == "64" %}
+{%     set plugins_path="/usr/lib64/nagios/plugins" %}
+{%  endif %}
+
+{%- if nrpe_disk is defined %}
+        {{- nrpe_disk_function() }}
+{%  endif %}
+
+{%- if nrpe_swap is defined %}
+        {{- nrpe_swap_function() }}
+{%  endif %}
+
+{%- if nrpe_dns_record is defined %}
+        {{- nrpe_dns_record_function() }}
+{%  endif %}
+
+{%- if nrpe_load is defined %}
+        {{- nrpe_load_function() }}
+{%  endif %}
+
+{%- if nrpe_ntp_time is defined %}
+        {{- nrpe_ntp_time_function() }}
+{%  endif %}
+
+{%- if nrpe_ntp_peer is defined %}
+        {{- ntp_peer_function() }}
+{%  endif %}
+
+{%- if nrpe_url_string is defined %}
+        {{- url_string_function() }}
+{%  endif %}
+
+{%- if nrpe_vhost_cert_validity_time is defined %}
+        {{- vhost_cert_validity_time_function() }}
+{%  endif %}
+
+{%- if nrpe_smtp_cert_validity_time is defined %}
+        {{- smtp_cert_validity_time_function() }}
+{%  endif %}
+
+{%- if nrpe_smtp_auth is defined %}
+        {{- smtp_auth_function() }}
+{%  endif %}
+
+{%- if nrpe_tcp is defined %}
+        {{- tcp_function() }}
+{%  endif %}
+
+{%- if nrpe_memory is defined %}
+        {{- memory_function() }}
+{%  endif %}

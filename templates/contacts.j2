@@ -1,0 +1,38 @@
+# File managed by Ansible
+
+define contact{
+	name                          generic-contact
+	service_notification_period   24x7
+	host_notification_period      24x7
+	service_notification_options  w,u,c,r
+	host_notification_options     d,u,r
+	service_notification_commands notify-service-by-email
+	host_notification_commands    notify-host-by-email
+	register                      0
+}
+
+{%  for key,value in nagios.contacts.items() %}
+define contact{
+	contact_name {{ key }}
+	use          generic-contact
+	alias        {{ value['alias'] }}
+	email        {{ value['email'] }}
+}
+{%  endfor %}
+
+{%- for key,value in nagios.contactgroups.items() %}
+{%     if value['enable']|default(True) == True %}
+
+define contactgroup {
+	contactgroup_name {{ key }}
+	alias             {{ value['alias']|default(key) }}
+	members           {%  for contact in value['members'] %}
+	                  {%-    if nagios.contacts[contact]['enable']|default(True) == True %}{{ contact }}
+	                  {%-       if not loop.last %} {{- ', ' }}
+	                  {%-       endif %}
+	                  {%-    endif %}
+	                  {%- endfor %}
+
+}
+{%    endif %}
+{% endfor %}

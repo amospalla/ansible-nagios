@@ -1,0 +1,216 @@
+---
+###############
+# nagios.conf #
+###############
+nagios_conf:
+  - regex: ^check_external_commands=.*
+    line: check_external_commands=1
+
+nagios_commands:
+  ping:
+    command_line: /usr/lib/nagios/plugins/check_ping -H $HOSTADDRESS$ -w $_HOSTPINGLATENCYWARNING$,$_HOSTPINGLOSSWARNING$ -c $_HOSTPINGLATENCYCRITICAL$,$_HOSTPINGLOSSCRITICAL$ -p $_HOSTPINGNUMBEROFPACKETS$
+  email_rbl:
+    command_line: /usr/local/nagios/libexec/check_rbl --extra-opts=rbl@/usr/local/nagios/libexec/check_rbl.ini -c 1 -w 1 --host=217.150.208.218
+
+nagios_checks:
+  ping:
+    type: command
+    description: ping
+  email_rbl:
+    type: command
+    description: email rbl
+  nrpe_disk:
+    description: disk free
+    multiple_checks: true
+  nrpe_swap:
+    description: swap free
+  nrpe_dns_record:
+    description: dns record
+    multiple_checks: true
+  nrpe_load:
+    description: cpu load
+  nrpe_ntp_time:
+    description: date
+  nrpe_url_string:
+    description: check string in url
+    multiple_checks: true
+  nrpe_ntp_peer:
+    description: ntp server
+  nrpe_vhost_cert_validity_time:
+    description: vhost cert validity time
+    multiple_checks: true
+  nrpe_smtp_cert_validity_time:
+    description: smtp cert validity time
+    multiple_checks: true
+  nrpe_smtp_auth:
+    description: smtp auth
+    multiple_checks: true
+  nrpe_tcp:
+    description: check tcp port
+    multiple_checks: true
+  nrpe_memory:
+    description: memory/app/swap usage
+
+# FOR REFERENCE, to be set on host/groups vars
+#
+# nrpe_allowed_hosts:
+#   - host1
+#   - host2
+#
+# nagios:
+#   contactgroups:
+#     admins:
+#       members:
+#         - jordi
+#       alias: Grup de contacte genèric
+#       enable: True
+#   contacts:
+#     jordi:
+#       alias: Jordi Marqués
+#       email: jordi@amospalla.es
+#       enable: True
+#   # alias definition and disable groups (enable defaults to true)
+#   hostgroups:
+#     linux:
+#       alias: Linux hosts
+#       enable: True
+#     lxc-test:
+#       alias: ni puta idea no recorde per a que es este grup
+#       enable: False
+#   services:
+#     groups:
+#       all:
+#         ping:
+#       linux:
+#         nrpe_disk:
+#         nrpe_load:
+#         nrpe_memory:
+#           exclude:
+#             - host1
+#             - host2
+#         nrpe_ntp_time:
+#     hosts:
+#       escriptori.casa.amospalla.es:
+#         nrpe_dns:
+#         nrpe_url_string:
+#         nrpe_ntp_peer:
+#         nrpe_vhost_cert_validity_time:
+#         nrpe_smtp_cert_validity_time:
+#         nrpe_smtp_auth:
+#         nrpe_tcp:
+#
+# nrpe_disk:
+#   0:
+#     path: all
+#     units: percent, k, kb, kib, m, mb, mib, g, gb, gib, t, tb, tib
+#     warning:  20
+#     critical: 10
+#     inode_units: percent, k, m, g, t
+#     inode_warning:  10 (fixed or %)
+#     inode_critical: 5 (fixed or %)
+#     only_local: true (default false)
+#     exclude_type:
+#       - devpts
+#       - tmpfs
+#       - cgroup
+#     exclude_regex:
+#       - ^/var/www/client*
+#   1:
+#     path: /
+#     units: percent, k, kb, kib, m, mb, mib, g, gb, gib, t, tb, tib
+#     warning:  10
+#     critical:  4
+#     inode_units: percent, k, kb, kib, m, mb, mib, g, gb, gib, t, tb, tib
+#     inode_warning:  20000 (fixed or %)
+#     inode_critical: 10000
+#
+# nrpe_swap:
+#   units: percent, k, kb, kib, m, mb, mib, g, gb, gib, t, tb, tib
+#   warning_free:  2
+#   critical_free: 1
+#
+# nrpe_dns_record:
+#   0:
+#     query: www.amospalla.es
+#     hostname: amospalla.es
+#     answer: 5.9.8.149
+#     authoritative: boolean (default false)
+#
+# nrpe_load:
+#   warning: 1.0,1.0,1.0
+#   critical: 2.0,2.0,2.0
+#   load_1_means_all_cpus_are_used: boolean (default false)
+#
+# nrpe_ntp_time:
+#   ntp_server: address
+#   warning: seconds
+#   critical: seconds
+#
+# nrpe_ntp_peer:
+#   warning: seconds
+#   critical: seconds
+#
+# nrpe_url_string:
+#   0:
+#     hostname: ip
+#     port: 443 (default 80)
+#     ssl: boolean
+#     sni: boolean
+#     vhost: www.amospalla.es
+#     string: some text
+#
+# nrpe_vhost_cert_validity_time:
+#   0:
+#     hostname: amospalla.es
+#     port: 443 (default 443)
+#     vhost: amospalla.es
+#     time: days
+#
+# nrpe_smtp_cert_validity_time:
+#   0:
+#     hostname: host/ip
+#     port: 25 (default 25)
+#     time: days
+#
+# nrpe_smtp_auth:
+#   0:
+#     hostname: host/ip
+#     port: 25 (default 25)
+#     starttls: boolean (default to true)
+#     username: string
+#     password: string
+#
+# nrpe_tcp:
+#   0:
+#     hostname: 1.2.3.4
+#     port: 1234
+#     timeout: 5 (default to 5)
+#     ssl: boolean (default to false)
+#
+# nrpe_memory:
+#   units: percent, k, kb, kib, m, mb, mib, g, gb, gib, t, tb, tib
+#   warning_memory_total_used:         xx
+#   warning_memory_applications_used:  xx
+#   warning_memory_cache_used:         xx
+#   warning_swap_used:                 xx
+#   critical_memory_total_used:        xx
+#   critical_memory_applications_used: xx
+#   critical_memory_cache_used:        xx
+#   critical_swap_used:                xx
+#
+# nagios_ping:
+#   latency_warning:   200.0
+#   latency_critical:  2000.0
+#   loss_warning:      1%
+#   loss_critical:     7%
+#   number_of_packets: 20
+#
+# nagios_rbl_ip_list:
+#   - normal_check_interval: minutes
+#     address:
+#       - 5.9.8.149/32
+#   - normal_check_interval: minutes
+#     address:
+#       - 10.0.0.0/29
+
+#  vim: set ts=2 sw=2 tw=0 sts=2 et :

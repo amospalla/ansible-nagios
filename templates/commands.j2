@@ -1,0 +1,8 @@
+# File managed by Ansible
+{%  for key,value in nagios_commands.items() %}
+
+define command {
+	command_name {{  key }}
+	command_line {{  value.command_line }}
+}
+{% endfor %}

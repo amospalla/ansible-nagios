@@ -1,0 +1,47 @@
+# File managed by Ansible
+
+{%- macro print(host,command,description,index) %}
+define service {
+	host_name               {{ host }}
+	use                     generic-service
+	notification_interval   0
+	service_description     {{ description }}
+	check_command           {{ command }}{{ index }}
+}
+{%  endmacro %}
+
+{%- macro build_define(host,check) %}
+{%  if nagios_checks[check].type is defined %}
+{%     if nagios_checks[check].type == 'command' %}
+{%        set command = check %}
+{%        set description = nagios_checks[check].description %}
+{{        print(host,command,description,'') }}
+{%     endif %}
+{%  elif check|search('nrpe_') %}
+{%     set description = nagios_checks[check].description %}
+{%     for foo in hostvars[host][check] %}
+{%        set command = 'check_nrpe_1arg!' ~ check %}
+{{        print(host,command,description,loop.index0) }}
+{%        endfor %}
+{%  endif %}
+{%  endmacro %}
+
+{%  if nagios.services.groups is defined %}
+{%     for group,services in nagios.services.groups.items() %}
+{%        for service,items in services.items() %}
+{%           for host in groups[group] %}
+{%              if not ( services[service].exclude is defined and host in services[service].exclude ) %}
+                   {{- build_define(host,service) -}}
+{%              endif %}
+{%           endfor %}
+{%        endfor %}
+{%     endfor %}
+{%  endif %}
+
+{%  if nagios.services.hosts is defined %}
+{%     for host,services in nagios.services.hosts.items() %}
+{%        for service,items in services.items() %}
+             {{- build_define(host,service) -}}
+{%        endfor %}
+{%     endfor %}
+{%  endif %}

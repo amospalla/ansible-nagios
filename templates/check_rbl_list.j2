@@ -1,0 +1,4 @@
+[rbl]
+{% for dns in nagios_check_rbl %}
+server={{ dns }}
+{% endfor %}

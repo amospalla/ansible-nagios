@@ -1,0 +1,8 @@
+---
+- include: rbl_ip_list_create.yml
+  when: rbl_ip_list_create|default(false) == true
+
+- include: nrpe.yml
+
+- include: nagios.yml
+  when: nagios_server|default('false') == 'true'

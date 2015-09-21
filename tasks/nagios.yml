@@ -1,0 +1,73 @@
+---
+# ansible-vaulted file with nagiosadmin password for cgi web interface
+- include_vars: nagiosadmin_password.yml
+
+# - name: Install server packages
+#   apt: name={{ item }} update_cache=yes cache_valid_time=86400 state=present install_recommends=no
+#   with_items:
+#     - nagios3
+#     - make
+#     - cpanminus
+#     - libdata-validate-domain-perl
+#     - libdata-validate-ip-perl
+#     - libreadonly-perl
+#     - prips
+#     - sipcalc
+# 
+# - name: Install server CPAN packages
+#   cpanm:
+#     name: Monitoring::Plugin
+# 
+# - name: Copy check plugins
+#   copy: src={{ item }} dest=/usr/local/nagios/libexec mode=0755
+#   with_items:
+#     - check_rbl
+
+# - name: Configuration contacts
+#   template:
+#     src: contacts.j2
+#     dest: /etc/nagios3/conf.d/contacts.cfg
+#     mode: 0644
+#   notify: restart nagios
+# 
+# - name: Configuration hosts
+#   template:
+#     src: hosts.j2
+#     dest: /etc/nagios3/conf.d/hosts.cfg
+#     mode: 0644
+#   notify: restart nagios
+# 
+# - name: Configuration hostgroups
+#   template:
+#     src: hostgroups.j2
+#     dest: /etc/nagios3/conf.d/hostgroups.cfg
+#     mode: 0644
+#   notify: restart nagios
+# 
+# - name: Configuration generic-host
+#   template:
+#     src: generic-host.j2
+#     dest: /etc/nagios3/conf.d/generic-host.cfg
+#     mode: 0644
+#   notify: restart nagios
+# 
+# - name: Configuration commands
+#   template:
+#     src: commands.j2
+#     dest: /etc/nagios3/conf.d/commands.cfg
+#     mode: 0644
+#   notify: restart nagios
+# 
+# - name: Configuration services | templates
+#   template:
+#     src: services_templates.j2
+#     dest: /etc/nagios3/conf.d/services_templates.cfg
+#     mode: 0644
+#   notify: restart nagios
+
+- name: Configuration services
+  template:
+    src: services.j2
+    dest: /etc/nagios3/conf.d/services.cfg
+    mode: 0644
+  notify: restart nagios
