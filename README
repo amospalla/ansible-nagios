@@ -1,16 +1,23 @@
 Ansible role for Nagios setup
 
 Sample playbook:
-
 ---
 # generate rbl_ip_list with an external script on ansible host
 # vars file is saved on the path rbl_list_path
-- hosts: ansible.casa.amospalla.es
+- hosts: ansible.hostname
   roles:
     - role: nagios
       rbl_ip_list_create: true
-      rbl_ip_list_path: /root/ansible/inventory/group_vars/all/nagios_rbl_ip_list
+      rbl_ip_list_path: /path/to/inventory/vars/nagios_rbl_ip_list
 
 - hosts: linux
   roles:
     - role: nagios
+
+Usage:
+
+- For rbl ip check, the nagios_rbl_ip_list list with cidr notation is read, so
+  a script is executed on the same host that ansible runs. This script creates
+  a yaml file with a list (nagios_rbl_ip_list_generated) which is then sourced
+  and used within the role. See above on the sample playbook, the path will be
+  sourced later and used.
