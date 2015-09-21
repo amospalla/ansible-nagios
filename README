@@ -21,3 +21,4 @@ Usage:
   a yaml file with a list (nagios_rbl_ip_list_generated) which is then sourced
   and used within the role. See above on the sample playbook, the path will be
   sourced later and used.
+- Nagios server is specified with the host variable 'nagios_server' set to true
