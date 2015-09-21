@@ -2,7 +2,7 @@
 - name: Create rbl list | copy script
   copy:
     src: rbl_generate.sh
-    dest: /usr/local/bin
+    dest: /usr/local/bin/rbl_generate.sh
     mode: 0755
 
 - name: Create rbl list | ensure vars file does not exist
