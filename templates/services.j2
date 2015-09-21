@@ -1,12 +1,15 @@
 # File managed by Ansible
 
-{%- macro print(host,command,description,index) %}
+{%- macro print(host,command,description,index,dictionary) %}
 define service {
 	host_name               {{ host }}
 	use                     generic-service
 	notification_interval   0
-	service_description     {{ description }}
-	check_command           {{ command }}{{ index }}
+	service_description     {{ description }} {{ index }}
+{%  if dictionary.normal_check_interval is defined %}
+    normal_check_interval   {{ dictionary.normal_check_interval }}
+{%  endif %}
+	check_command           {{ command }}
 }
 {%  endmacro %}
 
@@ -15,13 +18,13 @@ define service {
 {%     if nagios_checks[check].type == 'command' %}
 {%        set command = check %}
 {%        set description = nagios_checks[check].description %}
-{{        print(host,command,description,'') }}
+{{        print(host,command,description,'',{}) }}
 {%     endif %}
 {%  elif check|search('nrpe_') %}
 {%     set description = nagios_checks[check].description %}
-{%     for foo in hostvars[host][check] %}
-{%        set command = 'check_nrpe_1arg!' ~ check %}
-{{        print(host,command,description,loop.index0) }}
+{%     for dict in hostvars[host][check] %}
+{%        set command = 'check_nrpe_1arg!' ~ check ~ loop.index0 ~ ' ' ~ dict.nrpe_opts|default('') %}
+{{        print(host,command|trim(),description,loop.index0,dict) }}
 {%        endfor %}
 {%  endif %}
 {%  endmacro %}

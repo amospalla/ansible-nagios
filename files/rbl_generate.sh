@@ -14,12 +14,13 @@ print_range(){
 	do
 		echo "  - normal_check_interval: $time" >> "$path"
 		echo "    address: ${network}.${ip}" >> "$path"
+		echo "    nrpe_opts: -t 60" >> "$path"
 	done
 }
 
 if ! [ -f "$path" ]
 then
-	echo "nagios_rbl_ip_list_generated:" > "$path"
+	echo "nrpe_rbl:" > "$path"
 fi
 
 mask="$(echo "$address" | sed 's/.*\///')"
@@ -28,10 +29,12 @@ if ! echo "$address" | grep -q "/"
 then
 	echo "  - normal_check_interval: $time" >> "$path"
 	echo "    address: $address" >> "$path"
+		echo "    nrpe_opts: -t 60" >> "$path"
 elif [ $mask -ge 31 ]
 then
 	echo "  - normal_check_interval: $time" >> "$path"
 	echo "    address: $address" | sed 's/\/.*//' >> "$path"
+		echo "    nrpe_opts: -t 60" >> "$path"
 elif [ $mask -ge 24 ]
 then
 	print_range "$(sipcalc $address | grep Usable)"

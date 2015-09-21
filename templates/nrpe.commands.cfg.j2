@@ -93,6 +93,22 @@
 {%  endmacro -%}
 
 {#############################################################################}
+{###  rbl  ###################################################################}
+{#############################################################################}
+
+{%- macro nrpe_rbl_function() %}
+{%  for item in nrpe_rbl %}
+        {{- 'command[nrpe_rbl' }}{{ loop.index0 }}{{ ']='}}
+        {{- '/usr/local/nagios/libexec/check_rbl' }}
+        {{- ' --warning=' }}1
+        {{- ' --critical=' }}1
+        {{- ' --host=' }}{{ item.address }}
+        {{- ' --extra-opts=rbl@/usr/local/nagios/libexec/check_rbl.ini' }}
+        {{- ' --timeout=' }}{{ 60 }}
+{%  endfor %}
+{%  endmacro -%}
+
+{#############################################################################}
 {###  load  ##################################################################}
 {#############################################################################}
 
@@ -135,7 +151,7 @@
         {{- item.critical_swap_used|default('') }}
 {%-     if units == 'percent' %}
             {{- ' --perthres' }}
-{%-     else %}
+{%      else %}
             {{- ' --units=' }}{{ units }}
 {%      endif %}
 {%  endfor %}
@@ -333,4 +349,8 @@
 
 {%- if nrpe_memory is defined %}
         {{- nrpe_memory_function() }}
+{%- endif %}
+
+{%- if nrpe_rbl is defined %}
+        {{- nrpe_rbl_function() }}
 {%- endif %}

@@ -48,7 +48,12 @@
     - nrpe
 
 - name: Copy commands file
-  template: src=nrpe.commands.cfg.j2 dest=/etc/nagios/nrpe.d/commands.cfg mode=0644
+  template: src=nrpe.commands.cfg.j2 dest=/etc/nagios/nrpe.d/commands.cfg mode=0600
+  tags:
+    - nrpe
+
+- name: Template rbl_servers_list.j2
+  template: src=check_rbl_list.j2 dest=/usr/local/nagios/libexec/check_rbl.ini mode=0644
   tags:
     - nrpe
 

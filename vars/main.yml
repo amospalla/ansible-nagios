@@ -16,38 +16,30 @@ nagios_checks:
   ping:
     type: command
     description: ping
-  email_rbl:
-    type: command
+  nrpe_rbl:
     description: email rbl
   nrpe_disk:
     description: disk free
-    multiple_checks: true
   nrpe_swap:
     description: swap free
   nrpe_dns_record:
     description: dns record
-    multiple_checks: true
   nrpe_load:
     description: cpu load
   nrpe_ntp_time:
     description: date
   nrpe_url_string:
     description: check string in url
-    multiple_checks: true
   nrpe_ntp_peer:
     description: ntp server
   nrpe_vhost_cert_validity_time:
     description: vhost cert validity time
-    multiple_checks: true
   nrpe_smtp_cert_validity_time:
     description: smtp cert validity time
-    multiple_checks: true
   nrpe_smtp_auth:
     description: smtp auth
-    multiple_checks: true
   nrpe_tcp:
     description: check tcp port
-    multiple_checks: true
   nrpe_memory:
     description: memory/app/swap usage
 
