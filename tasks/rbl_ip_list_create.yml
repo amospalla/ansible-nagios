@@ -18,5 +18,10 @@
     - address
   changed_when: false
 
+- name: Create rbl list | set owner
+  file:
+    dest: "{{ rbl_ip_list_path }}"
+    owner: "{{ rbl_ip_list_owner }}"
+
 - name: Create rbl list | include generated vars
   include_vars: "{{ rbl_ip_list_path }}"

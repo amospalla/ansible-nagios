@@ -9,6 +9,7 @@ Sample playbook:
     - role: nagios
       rbl_ip_list_create: true
       rbl_ip_list_path: /path/to/inventory/vars/nagios_rbl_ip_list
+      rbl_ip_list_owner: user running ansible
 
 - hosts: linux
   roles:
