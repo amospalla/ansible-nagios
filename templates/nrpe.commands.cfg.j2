@@ -62,6 +62,7 @@
 
 {%- macro nrpe_disk_function() %}
 {%  for item in nrpe_disk %}
+{{ '\n' }}
         {{- 'command[nrpe_disk' }} {{- loop.index0 -}} ]=
         {{- plugins_path }}/check_disk
         {{- check_disk_path(item) }}
