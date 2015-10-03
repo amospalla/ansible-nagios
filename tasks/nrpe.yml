@@ -1,43 +1,43 @@
 ---
-# - name: Install nagios packages (Debian family)
-#   apt: name={{ item }} update_cache=yes cache_valid_time=86400 state=present install_recommends=no
-#   when: ansible_os_family == "Debian"
-#   with_items:
-#     - libnagios-plugin-perl
-#     - libnet-dns-perl
-#     - nagios-nrpe-plugin
-#     - nagios-nrpe-server
-#     - nagios-plugins
-# 
-# - name: Install nagios packages (RedHat family)
-#   yum: name={{ item }} state=installed
-#   when: ansible_os_family == "RedHat"
-#   with_items:
-#     - nrpe
-#     - openssl
-#     - nagios-plugins-disk
-#     - nagios-plugins-dns
-#     - nagios-plugins-load
-#     - nagios-plugins-nrpe
-#     - nagios-plugins-ntp
-#     - nagios-plugins-swap
-#     - perl-Nagios-Plugin
-#     - perl-Net-DNS
-# 
-# - name: Create folders
-#   file: dest={{ item }} state=directory mode=0755
-#   with_items:
-#     - /usr/local
-#     - /usr/local/nagios
-#     - /usr/local/nagios/libexec
-#     - /etc/nagios/nrpe.d
-# 
-# # with btrfs inodes check fails, register a variable to tell template go ignore inode check
-# - name: get if host has btrfs filesystem
-#   command: grep -q btrfs /etc/mtab
-#   register: btrfs_inodes
-#   failed_when: false
-#   changed_when: false
+- name: Install nagios packages (Debian family)
+  apt: name={{ item }} update_cache=yes cache_valid_time=86400 state=present install_recommends=no
+  when: ansible_os_family == "Debian"
+  with_items:
+    - libnagios-plugin-perl
+    - libnet-dns-perl
+    - nagios-nrpe-plugin
+    - nagios-nrpe-server
+    - nagios-plugins
+
+- name: Install nagios packages (RedHat family)
+  yum: name={{ item }} state=installed
+  when: ansible_os_family == "RedHat"
+  with_items:
+    - nrpe
+    - openssl
+    - nagios-plugins-disk
+    - nagios-plugins-dns
+    - nagios-plugins-load
+    - nagios-plugins-nrpe
+    - nagios-plugins-ntp
+    - nagios-plugins-swap
+    - perl-Nagios-Plugin
+    - perl-Net-DNS
+
+- name: Create folders
+  file: dest={{ item }} state=directory mode=0755
+  with_items:
+    - /usr/local
+    - /usr/local/nagios
+    - /usr/local/nagios/libexec
+    - /etc/nagios/nrpe.d
+
+# with btrfs inodes check fails, register a variable to tell template go ignore inode check
+- name: get if host has btrfs filesystem
+  command: grep -q btrfs /etc/mtab
+  register: btrfs_inodes
+  failed_when: false
+  changed_when: false
 
 - name: Copy commands file (RedHat)
   template: src=nrpe.commands.cfg.j2 dest=/etc/nagios/nrpe.d/commands.cfg mode=0600
@@ -51,13 +51,13 @@
   notify:
     - restart nrpe Debian
 
-# - name: Template rbl_servers_list.j2
-#   template: src=check_rbl_list.j2 dest=/usr/local/nagios/libexec/check_rbl.ini mode=0644
-# 
-# - name: Copy check plugins
-#   copy: src={{ item }} dest=/usr/local/nagios/libexec mode=0755
-#   with_items:
-#     - check_unix_mem_usage.pl
+- name: Template rbl_servers_list.j2
+  template: src=check_rbl_list.j2 dest=/usr/local/nagios/libexec/check_rbl.ini mode=0644
+
+- name: Copy check plugins
+  copy: src={{ item }} dest=/usr/local/nagios/libexec mode=0755
+  with_items:
+    - check_unix_mem_usage.pl
 
 - name: Set nrpe nrpe.d folder (Debian)
   replace: dest=/etc/nagios/nrpe.cfg regexp='^include_dir=/etc/.*' replace='include_dir=/etc/nagios/nrpe.d'
