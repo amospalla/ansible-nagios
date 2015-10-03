@@ -3,3 +3,13 @@
   service:
     name: nagios3
     state: restarted
+
+- name: restart nrpe Debian
+  service:
+    name: nagios-nrpe-server
+    state: restarted
+
+- name: restart nrpe RedHat
+  service:
+    name: nrpe
+    state: restarted
