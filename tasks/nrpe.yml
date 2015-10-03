@@ -70,7 +70,7 @@
     - nrpe
 
 - name: Set nrpe allowed hosts
-  replace: dest=/etc/nagios/nrpe.cfg regexp='(^|.|..)allowed_hosts=.*' replace='allowed_hosts={{ nrpe_allowed_hosts | join(", ") }}'
+  replace: dest=/etc/nagios/nrpe.cfg regexp='(^|.|..)allowed_hosts=.*' replace='allowed_hosts={{ nrpe_allowed_hosts | join(",") }}'
   tags:
     - nrpe
 
