@@ -1,5 +1,7 @@
 # File managed by Ansible
 
+{%- set prefix = nrpe_prefix|default('') %}
+
 {#############################################################################}
 {###  macro get_units()  #####################################################}
 {#############################################################################}
@@ -63,7 +65,7 @@
 {%- macro nrpe_disk_function() %}
 {%  for item in nrpe_disk %}
 {{ '\n' }}
-        {{- 'command[nrpe_disk' }} {{- loop.index0 -}} ]=
+        {{- 'command[' }}{{ nrpe_prefix|default('') }}{{ 'nrpe_disk' }} {{- loop.index0 -}} ]=
         {{- plugins_path }}/check_disk
         {{- check_disk_path(item) }}
         {{- ' --errors-only' }}
@@ -99,7 +101,7 @@
 
 {%- macro nrpe_rbl_function() %}
 {%  for item in nrpe_rbl %}
-        {{- 'command[nrpe_rbl' }}{{ loop.index0 }}{{ ']='}}
+        {{- 'command[' }}{{ nrpe_prefix|default('') }}{{ 'nrpe_rbl' }}{{ loop.index0 }}{{ ']='}}
         {{- '/usr/local/nagios/libexec/check_rbl' }}
         {{- ' --warning=' }}1
         {{- ' --critical=' }}1
@@ -115,7 +117,7 @@
 
 {%- macro nrpe_load_function() %}
 {%  for item in nrpe_load %}
-        {{- 'command[nrpe_load' }}{{ loop.index0 }}{{ ']='}}
+        {{- 'command[' }}{{ nrpe_prefix|default('') }}{{ 'nrpe_load' }}{{ loop.index0 }}{{ ']='}}
         {{- plugins_path }}{{ '/check_load' }}
         {{- ' --warning=' }}{{ item.warning }}
         {{- ' --critical=' }}{{ item.critical }}
@@ -138,7 +140,7 @@
 {%      elif global_units.units == 'tb'      %}{% set units = 'TiB' %}
 {%      elif global_units.units == 'percent' %}{% set units = 'percent' %}
 {%      endif %}
-        {{- 'command[nrpe_memory' }}{{ loop.index0 }}{{ ']=' }}
+        {{- 'command[' }}{{ nrpe_prefix|default('') }}{{ 'nrpe_memory' }}{{ loop.index0 }}{{ ']=' }}
         {{- '/usr/local/nagios/libexec/check_unix_mem_usage.pl' }}
         {{- ' --warning=' }}
         {{- item.warning_memory_total_used|default('') }},
@@ -164,7 +166,7 @@
 
 {%- macro nrpe_smtp_auth_function() %}
 {%  for item in nrpe_smtp_auth %}
-        {{- 'command[nrpe_smtp_auth' }}{{ loop.index0 }}{{ ']='}}
+        {{- 'command[' }}{{ nrpe_prefix|default('') }}{{ 'nrpe_smtp_auth' }}{{ loop.index0 }}{{ ']='}}
         {{- plugins_path }}{{ '/check_smtp' }}
         {{- ' --hostname=' }}{{ item.hostname|string() }}
         {{- ' --port=' }}{{ item.port|default('25') }}
@@ -183,7 +185,7 @@
 
 {%- macro nrpe_tcp_function() %}
 {%  for item in nrpe_tcp %}
-        {{- 'command[nrpe_tcp' }}{{ loop.index0 }}{{ ']=' }}
+        {{- 'command[' }}{{ nrpe_prefix|default('') }}{{ 'nrpe_tcp' }}{{ loop.index0 }}{{ ']=' }}
         {{- plugins_path }}{{ '/check_tcp' }}
 {%-     if item.ssl|default(false) == true %}
         {{- ' --ssl' }}
@@ -202,7 +204,7 @@
 
 {%- macro nrpe_ntp_time_function() %}
 {%  for item in nrpe_ntp_time %}
-        {{- 'command[nrpe_ntp_time' }}{{ loop.index0 }}{{ ']=' }}
+        {{- 'command[' }}{{ nrpe_prefix|default('') }}{{ 'nrpe_ntp_time' }}{{ loop.index0 }}{{ ']=' }}
         {{- plugins_path }}{{ '/check_ntp_time' }}
         {{- ' --hostname=' }}{{ item.ntp_server }}
         {{- ' --warning=' }}{{ item.warning }}
@@ -216,7 +218,7 @@
 
 {%- macro nrpe_dns_record_function() %}
 {%  for item in nrpe_dns_record %}
-        {{- 'command[nrpe_dns_record' }}{{ loop.index0 }}{{ ']='}}
+        {{- 'command[' }}{{ nrpe_prefix|default('') }}{{ 'nrpe_dns_record' }}{{ loop.index0 }}{{ ']='}}
         {{- plugins_path }}{{ '/check_dns' }}
         {{- ' --hostname=' }}{{ item.query }}
         {{- ' --server=' }}{{ item.hostname }}
@@ -233,7 +235,7 @@
 
 {%- macro nrpe_url_string_function() %}
 {%  for item in nrpe_url_string %}
-        {{- 'command[nrpe_url_string' }}{{ loop.index0 }}{{ ']='}}
+        {{- 'command[' }}{{ nrpe_prefix|default('') }}{{ 'nrpe_url_string' }}{{ loop.index0 }}{{ ']='}}
         {{- plugins_path }}{{ '/check_http' }}
         {{- ' --hostname=' }}{{ item.vhost }}
         {{- ' --IP-address=' }}{{ item.hostname }}
@@ -254,7 +256,7 @@
 
 {%- macro nrpe_ntp_peer_function() %}
 {%  for item in nrpe_ntp_peer %}
-        {{- 'command[nrpe_ntp_peer' }}{{ loop.index0 }}{{ ']='}}
+        {{- 'command[' }}{{ nrpe_prefix|default('') }}{{ 'nrpe_ntp_peer' }}{{ loop.index0 }}{{ ']='}}
         {{- plugins_path }}{{ '/check_ntp_peer' }}
         {{- ' --hostname=127.0.0.1' }}
         {{- ' --warning=' }}{{ item.warning }}
@@ -268,7 +270,7 @@
 
 {%- macro nrpe_vhost_cert_validity_time_function() %}
 {%  for item in nrpe_vhost_cert_validity_time %}
-        {{- 'command[nrpe_vhost_cert_validity_time' }}{{ loop.index0 }}{{ ']='}}
+        {{- 'command[' }}{{ nrpe_prefix|default('') }}{{ 'nrpe_vhost_cert_validity_time' }}{{ loop.index0 }}{{ ']='}}
         {{- plugins_path }}{{ '/check_http' }}
         {{- ' --hostname=' }}{{ item.vhost }}
         {{- ' --IP-address=' }}{{ item.hostname }}
@@ -287,7 +289,7 @@
 
 {%- macro nrpe_smtp_cert_validity_time_function() %}
 {%  for item in nrpe_smtp_cert_validity_time %}
-        {{- 'command[nrpe_smtp_cert_validity_time' }}{{ loop.index0 }}{{ ']='}}
+        {{- 'command[' }}{{ nrpe_prefix|default('') }}{{ 'nrpe_smtp_cert_validity_time' }}{{ loop.index0 }}{{ ']='}}
         {{- plugins_path }}{{ '/check_smtp' }}
         {{- ' --hostname=' }}{{ item.hostname }}
         {{- ' --port=' }}{{ item.port|default('25') }}

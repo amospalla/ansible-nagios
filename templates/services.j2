@@ -23,7 +23,7 @@ define service {
 {%  elif check|search('nrpe_') %}
 {%     set description = nagios_checks[check].description %}
 {%     for dict in hostvars[host][check] %}
-{%        set command = 'check_nrpe_1arg!' ~ check ~ loop.index0 ~ ' ' ~ dict.nrpe_opts|default('') %}
+{%        set command = 'check_nrpe_1arg!' ~ nrpe_prefix|default('') ~ check ~ loop.index0 ~ ' ' ~ dict.nrpe_opts|default('') %}
 {{        print(host,command|trim(),description,loop.index0,dict) }}
 {%        endfor %}
 {%  endif %}
