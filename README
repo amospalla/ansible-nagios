@@ -24,4 +24,3 @@ Usage:
   and used within the role. See above on the sample playbook, the path will be
   sourced later and used.
 - Nagios server is specified with the host variable 'nagios_server' set to true
-- Nagios server is specified setting the variable nagios_server=True on the host
