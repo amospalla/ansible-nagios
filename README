@@ -10,7 +10,7 @@ Sample playbook:
       rbl_ip_list_create: true
       rbl_ip_list_path: /path/to/inventory/vars/nagios_rbl_ip_list
       rbl_ip_list_owner: user running ansible
-	  nrpe_prefix: text to use as prefix for nrpe commands and nrpe commands file on monitorized hosts
+      nrpe_prefix: text to use as prefix for nrpe commands and nrpe commands file on monitorized hosts
 
 - hosts: linux
   roles:
