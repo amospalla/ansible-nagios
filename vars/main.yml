@@ -4,7 +4,7 @@
 ###############
 
 # should be into a ansible-vault file
-nagiosadmin_password: somepassword
+nagiosadmin_password: 1234
 
 nagios_conf:
   - regex: ^check_external_commands=.*

@@ -13,6 +13,7 @@
     - libreadonly-perl
     - prips
     - sipcalc
+    - python-passlib
 
 - name: Install server CPAN packages
   cpanm:
@@ -70,4 +71,16 @@
     src: services.j2
     dest: /etc/nagios3/conf.d/services.cfg
     mode: 0644
+  notify: restart nagios
+
+- name: htpasswd
+  htpasswd:
+    create: yes
+    name: nagiosadmin
+    password: '{{ nagiosadmin_password }}'
+    path: /etc/nagios3/htpasswd.users
+    state: present
+    owner: root
+    group: nagios
+    mode: 0640
   notify: restart nagios
