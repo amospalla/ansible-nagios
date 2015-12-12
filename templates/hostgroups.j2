@@ -5,23 +5,33 @@ define hostgroup {
 	alias          Todos los equipos
 	members        *
 }
-{%  for group in groups %}
-{%-    if not ( nagios.hostgroups is defined
-                and nagios.hostgroups[group] is defined
-                and nagios.hostgroups[group]['enable']|default(true) == false )
-       and group not in ['all','ungrouped'] %}
+{%  if nagios.hostgroups is defined %}
+{%     for hostgroup in nagios.hostgroups.keys() %}
+{%        if nagios.hostgroups[hostgroup]['enable']|default(false) == true %}
 
+{##############################################################}
+{# members:                                                   #}
+{# for host in group[hostgroup]                               #}
+{#    if hostvars[host].enable == True                        #}
+{#    and not nagios.hosts[host].enabled == False             #}
+{# ?  and not host in nagios.services[service].exclude        #}
+{#    and not host in nagios.hostgroups[hostgroup].exclude    #}
+{##############################################################}
 define hostgroup {
-	hostgroup_name {{ group }}
-	alias          {%  if nagios.hostgroups[group] is defined
-	                   and nagios.hostgroups[group]['alias'] is defined %}
-	                      {{- nagios.hostgroups[group]['alias'] }}
+	hostgroup_name {{ hostgroup }}
+	alias          {%  if nagios.hostgroups[hostgroup] is defined
+	                   and nagios.hostgroups[hostgroup]['alias'] is defined %}
+	                      {{- nagios.hostgroups[hostgroup]['alias'] }}
 	               {%  else %}
-	               {{-    group }}
-	               {%- endif %}
-
-	members        {%  for host in groups[group] %}
-	               {%-    if hostvars[host]['nagios_enable']|default(True) == True %}
+	               {{-    hostgroup }}
+	               {%- endif -%}
+	members        {%  for host in groups[hostgroup] %}
+	               {%-    if hostvars[host]['nagios_enable']|default(True) == True
+                                 and not ( nagios.hosts is defined
+                                           and nagios.hosts[host] is defined
+                                           and nagios.hosts[host].enabled|default(True) == False )
+                                 and not ( nagios.hostgroups[hostgroup].exclude is defined
+                                           and host in nagios.hostgroups[hostgroup].exclude ) %}
 	               {{-       host }}
 	               {%-       if not loop.last %}
 	               {{-          ', ' }}
@@ -30,5 +40,6 @@ define hostgroup {
 	               {%- endfor %}
 
 }
-{%     endif %}
-{%  endfor %}
+{%        endif %}
+{%     endfor %}
+{%  endif %}

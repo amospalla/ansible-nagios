@@ -1,13 +1,13 @@
 # File managed by Ansible
-
 {%- macro print(host,command,description,index,dictionary) %}
+
 define service {
 	host_name               {{ host }}
 	use                     generic-service
 	notification_interval   0
 	service_description     {{ description }} {{ index }}
 {%  if dictionary.normal_check_interval is defined %}
-    normal_check_interval   {{ dictionary.normal_check_interval }}
+        normal_check_interval   {{ dictionary.normal_check_interval }}
 {%  endif %}
 	check_command           {{ command }}
 }
@@ -28,12 +28,25 @@ define service {
 {%        endfor %}
 {%  endif %}
 {%  endmacro %}
+{################################################################################}
+{# for group in nagios.services.group                                           #}
+{#    for service in group.services                                             #}
+{#        for host in group                                                     #}
+{#            if host is enabled                                                #}
+{#               ( -> hostvars[host]['nagios_enable'] == True )                 #}
+{#               ( -> host not in nagios.hostgroups['group'].exclude )          #}
+{#               ( -> host not in nagios.services.hostgroups['group'].exclude ) #}
+{################################################################################}
 
-{%  if nagios.services.groups is defined %}
-{%     for group,services in nagios.services.groups.items() %}
+{%  if nagios.services.hostgroups is defined %}
+{%     for hostgroup,services in nagios.services.hostgroups.items() %}
 {%        for service,items in services.items() %}
-{%           for host in groups[group] %}
-{%              if not ( services[service].exclude is defined and host in services[service].exclude ) %}
+{%           for host in groups[hostgroup] %}
+{%              if hostvars[host]['nagios_enable']|default(True) == True
+                   and not ( nagios.hostgroups[hostgroup].exclude is defined
+                             and host in nagios.hostgroups[hostgroup].exclude )
+                   and not ( nagios.services.hostgroups[hostgroup][service].exclude is defined
+                             and host in nagios.services.hostgroups[hostgroup][service].exclude ) %}
                    {{- build_define(host,service) -}}
 {%              endif %}
 {%           endfor %}
@@ -41,10 +54,22 @@ define service {
 {%     endfor %}
 {%  endif %}
 
+{#######################################################################}
+{# for host in nagios.services.hosts                                   #}
+{#    for service in hosts.services                                    #}
+{#        for host in group                                            #}
+{#            if host is enabled                                       #}
+{#               ( -> hostvars[host]['nagios_enable'] == True )        #}
+{#               ( -> nagios.hosts['host'].enabled == True )           #}
+{#######################################################################}
 {%  if nagios.services.hosts is defined %}
 {%     for host,services in nagios.services.hosts.items() %}
-{%        for service,items in services.items() %}
-             {{- build_define(host,service) -}}
-{%        endfor %}
+{%        if hostvars[host]['nagios_enable']|default(True) == True
+             and not ( nagios.hosts[host] is defined and
+                       nagios.hosts[host].enable|default(True) == False ) %}
+{%           for service,items in services.items() %}
+                {{- build_define(host,service) -}}
+{%           endfor %}
+{%         endif %}
 {%     endfor %}
 {%  endif %}

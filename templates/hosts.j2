@@ -1,6 +1,40 @@
 # File managed by Ansible
-{%  for host in groups['all'] %}
-{%-    if hostvars[host]['nagios_enable']|default(true) == true %}
+
+{%- set host_enable = {} %}
+
+{###########################################################################################}
+{# for all hosts                                                                           #}
+{#    exists = False                                                                       #}
+{#    for hostgroup in hostgroups                                                          #}
+{#       if host in groups[hostgroup] and host not in nagios.hostgroups[hostgroup].exclude #}
+{#          exists = True                                                                  #}
+{#    if host in nagios.hosts                                                              #}
+{#       exists = True                                                                     #}
+{#    if nagios.hosts[host].enable == False                                                #}
+{#       exists = False                                                                    #}
+{###########################################################################################}
+
+{%- for host in groups['all'] %}
+{%-    set _ = host_enable.update({'enable': False}) %}
+{%     if nagios.hostgroups is defined %}
+{%        for hostgroup in nagios.hostgroups.keys() %}
+{%           if host in groups[hostgroup]
+             and not ( nagios.hostgroups[hostgroup].exclude is defined
+                       and host in nagios.hostgroups[hostgroup].exclude ) %}
+{%-             set _ = host_enable.update({'enable': True}) %}
+{%           endif %}
+{%        endfor %}
+{%     endif %}
+{%     if nagios.hosts is defined
+       and host in nagios.hosts.keys() %}
+{%-       set _ = host_enable.update({'enable': True}) %}
+{%     endif %}
+{%     if nagios.hosts is defined
+       and host in nagios.hosts.keys()
+       and nagios.hosts[host].enable|default(True) == False %}
+{%-       set _ = host_enable.update({'enable': False}) %}
+{%     endif %}
+{%-    if host_enable.enable %}
 
 define host{
 	use                  generic-host
