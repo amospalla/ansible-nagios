@@ -1,11 +1,17 @@
 ---
 - include: nrpe.yml
-  tags: nrpe
+  tags:
+    - nrpe
+    - nrpe_config
 
 - include: rbl_ip_list_create.yml
   when: rbl_ip_list_create|default(false) == true
-  tags: nagios
+  tags: 
+    - nagios
+    - nagios_config
 
 - include: nagios.yml
   when: nagios_server|default('false') == 'true'
-  tags: nagios
+  tags:
+   - nagios
+   - nagios_config
