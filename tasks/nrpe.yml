@@ -16,9 +16,9 @@
 
 - name: Copy commands file (RedHat)
   template: src=nrpe.commands.cfg.j2 dest=/etc/nagios/nrpe.d/{{ nrpe_prefix|default('') }}commands.cfg mode=0600
+  when: ansible_os_family == 'RedHat'
   notify:
     - restart nrpe RedHat
-  when: ansible_os_family == 'RedHat'
 
 - name: Copy commands file (Debian)
   template: src=nrpe.commands.cfg.j2 dest=/etc/nagios/nrpe.d/{{ nrpe_prefix|default('') }}commands.cfg mode=0600
