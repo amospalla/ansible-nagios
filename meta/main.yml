@@ -119,3 +119,5 @@ dependencies:
           disabled: True
     tags: # Add tag to allow packages role to execute within this role
       - nagios
+    when: nagios_server|default('false') == 'true'
+
