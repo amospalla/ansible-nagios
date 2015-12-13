@@ -28,13 +28,13 @@
   register: output                                                              
   failed_when: False                                                            
   changed_when: False                                                           
-                                                                                
+
 - name: Create rbl list | Command status 1                                             
   debug:                                                                        
     msg: File has been copied                                                   
   changed_when: output.rc == 101                                                
   when: output.rc == 101                                                        
-                                                                                
+
 - name: Create rbl list | Command status 2                                             
   debug:                                                                        
     msg: Error copying file                                                     
