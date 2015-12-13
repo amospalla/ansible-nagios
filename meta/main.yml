@@ -1,0 +1,121 @@
+---
+dependencies:
+
+  - role: packages
+    packages:
+
+      - name: libnagios-plugin-perl
+        CentOS:
+          disabled: True
+
+      - name: libnet-dns-perl
+        CentOS:
+          disabled: True
+
+      - name: nagios-nrpe-plugin
+        CentOS:
+          disabled: True
+
+      - name: nrpe_server
+        CentOS:
+          name: nrpe
+        Ubuntu:
+          name: nagios-nrpe-server
+        Debian:
+          name: nagios-nrpe-server
+
+      - name: nagios-plugins
+        CentOS:
+          disabled: True
+
+      - name: dnsutils # used by check_dns
+        CentOS:
+          disabled: True
+
+      - name: openssl
+        Ubuntu:
+          disabled: True
+        Debian:
+          disabled: True
+
+      - name: nagios-plugins-disk
+        Ubuntu:
+          disabled: True
+        Debian:
+          disabled: True
+
+      - name: nagios-plugins-dns
+        Ubuntu:
+          disabled: True
+        Debian:
+          disabled: True
+
+      - name: nagios-plugins-load
+        Ubuntu:
+          disabled: True
+        Debian:
+          disabled: True
+
+      - name: nagios-plugins-nrpe
+        Ubuntu:
+          disabled: True
+        Debian:
+          disabled: True
+
+      - name: nagios-plugins-ntp
+        Ubuntu:
+          disabled: True
+        Debian:
+          disabled: True
+
+      - name: nagios-plugins-swap
+        Ubuntu:
+          disabled: True
+        Debian:
+          disabled: True
+
+      - name: perl-Nagios-Plugin
+        Ubuntu:
+          disabled: True
+        Debian:
+          disabled: True
+
+      - name: perl-Net-DNS
+        Ubuntu:
+          disabled: True
+        Debian:
+          disabled: True
+    tags: # Add tag to allow packages role to execute within this role
+      - nrpe
+
+  - role: packages
+    packages:
+      - name: nagios3
+        CentOS:
+          disabled: True
+      - name: make
+        CentOS:
+          disabled: True
+      - name: cpanminus
+        CentOS:
+          disabled: True
+      - name: libdata-validate-domain-perl
+        CentOS:
+          disabled: True
+      - name: libdata-validate-ip-perl
+        CentOS:
+          disabled: True
+      - name: libreadonly-perl
+        CentOS:
+          disabled: True
+      - name: prips
+        CentOS:
+          disabled: True
+      - name: nagios3
+        CentOS:
+          disabled: True
+      - name: python-passlib
+        CentOS:
+          disabled: True
+    tags: # Add tag to allow packages role to execute within this role
+      - nagios

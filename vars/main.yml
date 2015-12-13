@@ -35,7 +35,7 @@ nagios_checks:
   nrpe_url_string:
     description: check string in url
   nrpe_ntp_peer:
-    description: ntp server
+    description: ntp peer
   nrpe_vhost_cert_validity_time:
     description: vhost cert validity time
   nrpe_smtp_cert_validity_time:

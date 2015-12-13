@@ -1,20 +1,4 @@
 ---
-# # ansible-vaulted file with nagiosadmin password for cgi web interface
-# - include_vars: nagiosadmin_password.yml
-
-- name: Install server packages
-  apt: name={{ item }} update_cache=yes cache_valid_time=86400 state=present install_recommends=no
-  with_items:
-    - nagios3
-    - make
-    - cpanminus
-    - libdata-validate-domain-perl
-    - libdata-validate-ip-perl
-    - libreadonly-perl
-    - prips
-    - sipcalc
-    - python-passlib
-
 - name: Install server CPAN packages
   cpanm:
     name: Monitoring::Plugin

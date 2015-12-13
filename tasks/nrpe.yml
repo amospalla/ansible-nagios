@@ -1,29 +1,4 @@
 ---
-- name: Install nagios packages (Debian family)
-  apt: name={{ item }} update_cache=yes cache_valid_time=86400 state=present install_recommends=no
-  when: ansible_os_family == "Debian"
-  with_items:
-    - libnagios-plugin-perl
-    - libnet-dns-perl
-    - nagios-nrpe-plugin
-    - nagios-nrpe-server
-    - nagios-plugins
-
-- name: Install nagios packages (RedHat family)
-  yum: name={{ item }} state=installed
-  when: ansible_os_family == "RedHat"
-  with_items:
-    - nrpe
-    - openssl
-    - nagios-plugins-disk
-    - nagios-plugins-dns
-    - nagios-plugins-load
-    - nagios-plugins-nrpe
-    - nagios-plugins-ntp
-    - nagios-plugins-swap
-    - perl-Nagios-Plugin
-    - perl-Net-DNS
-
 - name: Create folders
   file: dest={{ item }} state=directory mode=0755
   with_items:
